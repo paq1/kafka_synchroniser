@@ -1,8 +1,9 @@
 use crate::core::queue::datas::Data;
 use rdkafka::producer::{BaseProducer, BaseRecord, Producer};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use rdkafka::ClientConfig;
+use serde::de::DeserializeOwned;
 use crate::core::queue::can_produce::CanProduceInQueue;
 
 pub struct SimpleKafkaProducer {
@@ -22,7 +23,10 @@ impl SimpleKafkaProducer {
 
 impl CanProduceInQueue for SimpleKafkaProducer {
 
-    fn produce_data<T: Serialize>(&self, topic: &str, data: &Data<T>, key: Option<&str>) -> Result<(), String> {
+    fn produce_data<'a, T>(&self, topic: &str, data: &Data<T>, key: Option<&str>) -> Result<(), String>
+    where
+        T: Serialize
+    {
         let data_stringify = serde_json::to_string(data).map_err(|e| e.to_string())?;
 
         match key {

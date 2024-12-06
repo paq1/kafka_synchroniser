@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-// TODO : Deserialize, Debug, Clone
-#[derive(Serialize)]
-pub struct Data<T: Serialize> {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Data<T> {
     pub data: T,
 }
