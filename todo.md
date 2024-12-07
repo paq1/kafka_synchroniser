@@ -5,4 +5,4 @@
 - [x] producer kafka
 - [ ] logging
 - [x] docker-compose pour kafka
-- [ ] synchronisation via correlation id
+- [x] synchronisation via correlation id
