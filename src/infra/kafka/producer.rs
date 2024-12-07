@@ -20,12 +20,12 @@ impl SimpleKafkaProducer {
     }
 }
 
-impl CanProduceInQueue for SimpleKafkaProducer {
+impl<T> CanProduceInQueue<T> for SimpleKafkaProducer
+where
+    T: Serialize,
+{
 
-    fn produce_data<'a, T>(&self, topic: &str, data: &Data<T>, key: Option<&str>) -> Result<(), String>
-    where
-        T: Serialize
-    {
+    fn produce_data(&self, topic: &str, data: &Data<T>, key: Option<&str>) -> Result<(), String> {
         let data_stringify = serde_json::to_string(data).map_err(|e| e.to_string())?;
 
         match key {
