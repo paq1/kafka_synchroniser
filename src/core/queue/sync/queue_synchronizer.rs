@@ -17,8 +17,8 @@ where
 }
 
 pub struct QueueSynchronizerImpl<M, R> {
-    producer: Arc<dyn CanProduceInQueue<M>>,
-    subscriber: Arc<dyn CanSubscribe<R>>,
+    pub producer: Arc<dyn CanProduceInQueue<M>>,
+    pub subscriber: Arc<dyn CanSubscribe<R>>,
 }
 
 #[async_trait]
@@ -32,6 +32,7 @@ where
         self.subscriber.subscribe(correlation_id, tx).await?;
         self.producer.produce_data(topic, &Data {data: message.clone()}, key)?;
 
+        println!("queue sync : en attente de sync");
         let c = rx
             .recv_timeout(Duration::from_secs(30))
             .map(|msg| {

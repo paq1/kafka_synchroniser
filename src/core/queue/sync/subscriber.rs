@@ -22,6 +22,15 @@ where
     pub datas: Arc<Mutex<HashMap<String, Sender<RESPONSE>>>>,
 }
 
+impl<RESPONSE> Subscriber<RESPONSE>
+where
+    RESPONSE: Send,
+{
+    pub fn new() -> Self {
+        Self { datas: Arc::new(Mutex::new(HashMap::new())) }
+    }
+}
+
 
 #[async_trait]
 impl<RESPONSE> CanSubscribe<RESPONSE> for Subscriber<RESPONSE>

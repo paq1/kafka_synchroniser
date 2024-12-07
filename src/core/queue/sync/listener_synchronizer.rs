@@ -8,7 +8,7 @@ pub struct ListenerSynchronizer<R>
 where
     R: CanGetCorrelationId
 {
-    subscriber: Arc<dyn CanSubscribe<R>>,
+    pub subscriber: Arc<dyn CanSubscribe<R>>,
 }
 
 #[async_trait]
@@ -16,8 +16,9 @@ impl<R> Listener<R> for ListenerSynchronizer<R>
 where
     R: CanGetCorrelationId + Send + Sync,
 {
-    async fn on_message(&self, message: &R) -> Result<(), String> {
+    async fn on_message(&self, message: &R, _key: Option<&str>) -> Result<(), String> {
         let correlation_id = message.get_correlation_id();
+        println!("listener sync : envoie du message dans le subscriber");
         self.subscriber.send(&correlation_id, message).await
     }
 }

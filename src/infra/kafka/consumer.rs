@@ -50,7 +50,7 @@ where
                     if let Some(Ok(paylaod)) = message.payload_view::<str>().or(None) {
                         println!("payload str : {paylaod}");
                         let x = serde_json::from_str::<M>(paylaod).unwrap();
-                        self.listener.on_message(&x).await?;
+                        self.listener.on_message(&x, None).await?; // TODO : recupere la key et la donner ici None to Some(key)
                         break Ok(());
                     }
                 }
