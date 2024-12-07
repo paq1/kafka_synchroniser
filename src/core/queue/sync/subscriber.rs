@@ -57,10 +57,12 @@ where
         let lock = self.datas.lock().await;
 
         if let Some(sender_arc) = lock.get(correlation_id) {
+            println!("subscriber : sender trouvé !");
             sender_arc
                 .send(message.clone())
                 .map_err(|e| e.to_string())?;
         } else {
+            println!("subscriber : pas de sender trouvé !");
             return Err(format!("Aucun Sender trouvé pour l'ID '{}'", correlation_id).into());
         }
 

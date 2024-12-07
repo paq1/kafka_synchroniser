@@ -20,7 +20,7 @@ impl<M> SimpleKafkaConsumer<M> {
         let consumer: StreamConsumer = rdkafka::ClientConfig::new()
             .set("group.id", group_id)
             .set("bootstrap.servers", "127.0.0.1:9092")
-            .set("auto.offset.reset", "latest" /* earliest */)
+            .set("auto.offset.reset", "earliest" /* earliest */)
             .create()
             .map_err(|e| e.to_string())?;
 
@@ -46,22 +46,26 @@ where
         loop {
 
             if !self.is_started {
-                break Ok(());
+                break Ok::<(), String>(());
             }
 
             match self.consumer.recv().await {
                 Ok(message) => {
                     if let Some(Ok(paylaod)) = message.payload_view::<str>().or(None) {
                         println!("payload str : {paylaod}");
-                        let x = serde_json::from_str::<M>(paylaod).unwrap();
-                        self.listener.on_message(&x, None).await?; // TODO : recupere la key et la donner ici None to Some(key)
-                        break Ok(());
+                        let deserialize_msg = serde_json::from_str::<M>(paylaod);
+                        if let Ok(msg) = deserialize_msg {
+                            let _ = self.listener.on_message(&msg, None).await; // TODO : recupere la key et la donner ici None to Some(key)
+                        } else {
+                            println!("error deserializing message"); // TODO : mettre un warning en logging
+                        }
+                        // break Ok(());
                     }
                 }
                 Err(e) => {
                     let err_str = format!("{:?}", e);
                     println!("kafka erreur {err_str}");
-                    break Err(format!("une erreur est survenue : {err_str}"));
+                    // break Err(format!("une erreur est survenue : {err_str}"));
                 }
             }
         }?;

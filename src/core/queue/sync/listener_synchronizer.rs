@@ -18,7 +18,7 @@ where
 {
     async fn on_message(&self, message: &R, _key: Option<&str>) -> Result<(), String> {
         let correlation_id = message.get_correlation_id();
-        println!("listener sync : envoie du message dans le subscriber");
+        println!("listener sync : envoie du message dans le subscriber pour : {correlation_id}");
         self.subscriber.send(&correlation_id, message).await
     }
 }
