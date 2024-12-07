@@ -9,7 +9,7 @@ where
     fn produce_data(
         &self,
         topic: &str,
-        data: &Data<T>,
+        data: &T,
         key: Option<&str>
     ) -> Result<(), String>;
 }

@@ -58,6 +58,11 @@ async fn main() -> Result<(), String> {
     let random_correlation_id = Uuid::new_v4().to_string();
 
     let test_cmd = ExCmd { nom: "paquin".to_string(), prenom: "pierre".to_string(), correlation_id: random_correlation_id };
+
+    println!("wait listener created (because latest)");
+    sleep(Duration::from_secs(10));
+    println!("go produce");
+
     let result = engine.offer(&test_cmd).await?;
 
     println!("Offer result: {:?}", result);

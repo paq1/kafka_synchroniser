@@ -25,7 +25,7 @@ where
     T: Serialize,
 {
 
-    fn produce_data(&self, topic: &str, data: &Data<T>, key: Option<&str>) -> Result<(), String> {
+    fn produce_data(&self, topic: &str, data: &T, key: Option<&str>) -> Result<(), String> {
         let data_stringify = serde_json::to_string(data).map_err(|e| e.to_string())?;
 
         match key {

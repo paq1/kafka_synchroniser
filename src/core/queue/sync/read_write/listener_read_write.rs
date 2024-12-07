@@ -23,6 +23,6 @@ where
         println!("read write listener : Received message: {:?}", message);
         let r = self.compute_cmd.compute_cmd(message).await?;
         self.producer
-            .produce_data(&self.topic_result, &Data { data: r }, key)
+            .produce_data(&self.topic_result, &r, key)
     }
 }

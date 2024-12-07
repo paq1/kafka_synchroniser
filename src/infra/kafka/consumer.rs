@@ -14,11 +14,13 @@ pub struct SimpleKafkaConsumer<M> {
 impl<M> SimpleKafkaConsumer<M> {
     pub fn new(topic: &str, group_id: &str, listener: Box<dyn Listener<M>>) -> Result<Self, String> {
 
+        println!("Creating new Kafka consumer from {}", topic);
+
         // TODO : passer la config en parametre ?
         let consumer: StreamConsumer = rdkafka::ClientConfig::new()
             .set("group.id", group_id)
             .set("bootstrap.servers", "127.0.0.1:9092")
-            .set("auto.offset.reset", "earliest" /* latest */)
+            .set("auto.offset.reset", "latest" /* earliest */)
             .create()
             .map_err(|e| e.to_string())?;
 
@@ -39,6 +41,8 @@ where
     M: DeserializeOwned + Send + Sync,
 {
     async fn consume(&self) -> Result<(), String> {
+        println!("consuming stream");
+
         loop {
 
             if !self.is_started {
@@ -60,7 +64,11 @@ where
                     break Err(format!("une erreur est survenue : {err_str}"));
                 }
             }
-        }
+        }?;
+
+        println!("end stream");
+
+        Ok(())
     }
 
     async fn stop(&mut self) -> Result<(), String> {
