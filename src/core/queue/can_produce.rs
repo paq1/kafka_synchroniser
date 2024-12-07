@@ -1,6 +1,5 @@
-use serde::de::DeserializeOwned;
 use crate::core::queue::datas::Data;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 
 pub trait CanProduceInQueue {

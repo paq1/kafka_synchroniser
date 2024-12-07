@@ -1,10 +1,9 @@
+use crate::core::queue::can_produce::CanProduceInQueue;
 use crate::core::queue::datas::Data;
 use rdkafka::producer::{BaseProducer, BaseRecord, Producer};
-use serde::{Deserialize, Serialize};
-use std::time::Duration;
 use rdkafka::ClientConfig;
-use serde::de::DeserializeOwned;
-use crate::core::queue::can_produce::CanProduceInQueue;
+use serde::Serialize;
+use std::time::Duration;
 
 pub struct SimpleKafkaProducer {
     producer: BaseProducer,
@@ -37,6 +36,7 @@ impl CanProduceInQueue for SimpleKafkaProducer {
                             .payload(&data_stringify)
                             .key(k),
                     )
+                    .map(|_| println!("send"))
             }
             _ => {
                 self.producer
