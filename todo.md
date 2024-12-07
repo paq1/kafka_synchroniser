@@ -1,4 +1,4 @@
-# kafka synchronier
+# kafka synchronizer
 
 - [x] listeners kafka
 - [x] consumer
