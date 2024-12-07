@@ -13,6 +13,8 @@ pub struct SimpleKafkaConsumer<M> {
 
 impl<M> SimpleKafkaConsumer<M> {
     pub fn new(topic: &str, group_id: &str, listener: Box<dyn Listener<M>>) -> Result<Self, String> {
+
+        // TODO : passer la config en parametre ?
         let consumer: StreamConsumer = rdkafka::ClientConfig::new()
             .set("group.id", group_id)
             .set("bootstrap.servers", "127.0.0.1:9092")
@@ -52,9 +54,10 @@ where
                         break Ok(());
                     }
                 }
-                _ => {
-                    println!("xxx");
-                    break Err("une erreur est survenue".to_string());
+                Err(e) => {
+                    let err_str = format!("{:?}", e);
+                    println!("kafka erreur {err_str}");
+                    break Err(format!("une erreur est survenue : {err_str}"));
                 }
             }
         }
