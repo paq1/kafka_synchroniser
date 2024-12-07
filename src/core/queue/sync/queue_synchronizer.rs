@@ -30,6 +30,7 @@ where
     async fn wait_result(&self, correlation_id: &str, topic: &str, message: &M, key: Option<&str>) -> Result<R, String> {
         let (tx, rx) = channel();
         self.subscriber.subscribe(correlation_id, tx).await?;
+        println!("queue sync : produce data in : {topic}");
         self.producer.produce_data(topic, &Data {data: message.clone()}, key)?;
 
         println!("queue sync : en attente de sync");

@@ -116,7 +116,7 @@ impl EngineExemple {
 
         println!("offer : en attente de sync");
         self.queue_sync
-            .wait_result(&cmd.get_correlation_id(), "ontologie-cmd", cmd, None)
+            .wait_result(&cmd.get_correlation_id(), "exemple-ontology-commands", cmd, None)
             .await
     }
 }
