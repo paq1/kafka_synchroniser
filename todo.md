@@ -1,8 +1,9 @@
 # kafka synchronizer
 
-- [x] listeners kafka
-- [x] consumer
-- [x] producer kafka
-- [x] logging
-- [x] docker-compose pour kafka
-- [x] synchronisation via correlation id
+- [x] Listeners kafka
+- [x] Consumer
+- [x] Producer kafka
+- [x] Logging
+- [x] Docker-compose pour kafka
+- [x] Synchronisation via correlation id
+- [ ] Simplifier l'utilisation de la lib
