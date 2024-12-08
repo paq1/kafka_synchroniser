@@ -4,11 +4,13 @@ use crate::core::queue::sync::can_get_correlation_id::CanGetCorrelationId;
 use crate::core::queue::sync::listener_synchronizer::ListenerSynchronizer;
 use crate::core::queue::sync::queue_synchronizer::{QueueSynchronizer, QueueSynchronizerImpl};
 use crate::core::queue::sync::read_write::listener_read_write::ListenerReadWrite;
-use crate::core::queue::sync::subscriber::CanSubscribe;
+use crate::core::queue::sync::subscriber::{CanSubscribe, Subscriber};
 use crate::infra::kafka::consumer::SimpleKafkaConsumer;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use std::thread::sleep;
+use std::time::Duration;
 use log::debug;
 use tokio::task;
 use uuid::Uuid;
@@ -42,6 +44,7 @@ impl CanGetCorrelationId for ExResultRecord {
 }
 
 use crate::core::queue::sync::read_write::can_compute_command::CanComputeCommand;
+use crate::infra::kafka::producer::SimpleKafkaProducer;
 
 pub struct ExempleComputeCommand {}
 
@@ -65,18 +68,16 @@ pub struct EngineExemple {
 }
 
 impl EngineExemple {
-    pub fn new(
-        producer: Arc<dyn CanProduceInQueue<ExCmd>>,
-        producer_result: Arc<dyn CanProduceInQueue<ExResultRecord>>,
-        subscriber: Arc<dyn CanSubscribe<ExResultRecord>>,
-    ) -> Result<Self, String> {
+    pub fn new(handler: Box<dyn CanComputeCommand<ExCmd, ExResultRecord>>) -> Result<Self, String> {
+        let producer_commands: Arc<dyn CanProduceInQueue<ExCmd>> = Arc::new(SimpleKafkaProducer::new("127.0.0.1:9092")?); // TODO : voir pour instancier un seul producer générique
+        let producer_results: Arc<dyn CanProduceInQueue<ExResultRecord>> = Arc::new(SimpleKafkaProducer::new("127.0.0.1:9092")?);
+        let subscriber: Arc<dyn CanSubscribe<ExResultRecord>> = Arc::new(Subscriber::new());
+
         let group_id_random = format!("exemple-engine-consumer-{}", Uuid::new_v4().to_string());
 
-        let compute_command = Box::new(ExempleComputeCommand {});
-
         let read_write_listener = Box::new(ListenerReadWrite {
-            producer: producer_result.clone(),
-            compute_cmd: compute_command,
+            producer: producer_results.clone(),
+            compute_cmd: handler,
             topic_result: "exemple-ontology-results".to_string(),
         });
 
@@ -86,7 +87,7 @@ impl EngineExemple {
 
         Ok(Self {
             queue_sync: Arc::new(QueueSynchronizerImpl {
-                producer: producer.clone(),
+                producer: producer_commands.clone(),
                 subscriber: subscriber.clone(),
             }),
             read_write_consumer: Arc::new(SimpleKafkaConsumer::new(
@@ -107,9 +108,12 @@ impl EngineExemple {
         let read_write_consumer = self.read_write_consumer.clone();
         let result_consumer = self.result_consumer.clone();
 
+        debug!("thead starting");
+
         task::spawn(async move { read_write_consumer.consume().await });
         task::spawn(async move { result_consumer.consume().await });
 
+        Self::temp_fix_for_waiting_thread_stated(Duration::from_secs(10)); // FIXME : à retirer lorsqu'on aura l'info que le listener est démarré
         Ok(())
     }
     pub async fn offer(&self, cmd: &ExCmd) -> Result<ExResultRecord, String> {
@@ -119,5 +123,10 @@ impl EngineExemple {
         self.queue_sync
             .wait_result(&cmd.get_correlation_id(), "exemple-ontology-commands", cmd, None)
             .await
+    }
+
+    #[deprecated]
+    fn temp_fix_for_waiting_thread_stated(duration: Duration) -> () {
+        sleep(duration)
     }
 }

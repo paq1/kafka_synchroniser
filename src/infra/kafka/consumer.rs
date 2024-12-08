@@ -18,7 +18,7 @@ impl<M> SimpleKafkaConsumer<M> {
         let consumer: StreamConsumer = rdkafka::ClientConfig::new()
             .set("group.id", group_id)
             .set("bootstrap.servers", "127.0.0.1:9092")
-            .set("auto.offset.reset", "earliest" /* earliest */)
+            .set("auto.offset.reset", "latest" /* earliest */)
             .create()
             .map_err(|e| e.to_string())?;
 
