@@ -3,6 +3,7 @@ use std::sync::Arc;
 use std::sync::mpsc::Sender;
 use async_trait::async_trait;
 use futures::lock::Mutex;
+use log::{debug, warn};
 
 #[async_trait]
 pub trait CanSubscribe<RESPONSE>: Send + Sync
@@ -57,12 +58,12 @@ where
         let lock = self.datas.lock().await;
 
         if let Some(sender_arc) = lock.get(correlation_id) {
-            println!("subscriber : sender trouvé !");
+            debug!("subscriber : sender trouvé !");
             sender_arc
                 .send(message.clone())
                 .map_err(|e| e.to_string())?;
         } else {
-            println!("subscriber : pas de sender trouvé !");
+            warn!("subscriber : pas de sender trouvé !");
             return Err(format!("Aucun Sender trouvé pour l'ID '{}'", correlation_id).into());
         }
 

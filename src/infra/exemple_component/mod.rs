@@ -9,6 +9,7 @@ use crate::infra::kafka::consumer::SimpleKafkaConsumer;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use log::debug;
 use tokio::task;
 use uuid::Uuid;
 
@@ -114,7 +115,7 @@ impl EngineExemple {
     pub async fn offer(&self, cmd: &ExCmd) -> Result<ExResultRecord, String> {
         let _correlation_id = "1234abcd"; // TODO faire un wrapper pour la command je pense qui va contenir la cmd + le correlation id ?
 
-        println!("offer : en attente de sync");
+        debug!("offer : en attente de sync");
         self.queue_sync
             .wait_result(&cmd.get_correlation_id(), "exemple-ontology-commands", cmd, None)
             .await

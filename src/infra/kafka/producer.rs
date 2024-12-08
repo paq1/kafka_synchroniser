@@ -4,6 +4,7 @@ use rdkafka::producer::{BaseProducer, BaseRecord, Producer};
 use rdkafka::ClientConfig;
 use serde::Serialize;
 use std::time::Duration;
+use log::{debug, info};
 
 pub struct SimpleKafkaProducer {
     producer: BaseProducer,
@@ -36,7 +37,7 @@ where
                             .payload(&data_stringify)
                             .key(k),
                     )
-                    .map(|_| println!("send"))
+                    .map(|_| debug!("send data success in {topic}"))
             }
             _ => {
                 self.producer

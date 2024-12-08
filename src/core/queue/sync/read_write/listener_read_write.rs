@@ -4,6 +4,7 @@ use crate::core::queue::datas::Data;
 use crate::core::queue::listener::Listener;
 use std::sync::Arc;
 use async_trait::async_trait;
+use log::info;
 use serde::Serialize;
 use crate::core::queue::sync::read_write::can_compute_command::CanComputeCommand;
 
@@ -20,7 +21,7 @@ where
     R: Serialize,
 {
     async fn on_message(&self, message: &CMD, key: Option<&str>) -> Result<(), String> {
-        println!("read write listener : Received message: {:?}", message);
+        info!("read write listener : Received message: {:?}", message);
         let r = self.compute_cmd.compute_cmd(message).await?;
         self.producer
             .produce_data(&self.topic_result, &r, key)

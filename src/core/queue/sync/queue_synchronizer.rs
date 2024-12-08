@@ -7,6 +7,7 @@ use std::fmt::Debug;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
 use std::time::Duration;
+use log::debug;
 
 #[async_trait]
 pub trait QueueSynchronizer<M, R>: Send + Sync
@@ -30,14 +31,14 @@ where
     async fn wait_result(&self, correlation_id: &str, topic: &str, message: &M, key: Option<&str>) -> Result<R, String> {
         let (tx, rx) = channel();
         self.subscriber.subscribe(correlation_id, tx).await?;
-        println!("queue sync : produce data in : {topic}");
+        debug!("queue sync : produce data in : {topic}");
         self.producer.produce_data(topic, &message.clone(), key)?;
 
-        println!("queue sync : en attente de sync");
+        debug!("queue sync : en attente de sync");
         let c = rx
             .recv_timeout(Duration::from_secs(30))
             .map(|msg| {
-                println!("Reçu : {msg:?}");
+                debug!("Reçu : {msg:?}");
                 msg
             })
             .map_err(|e| format!("Erreur lors de l'envoi: {}", e))?;
